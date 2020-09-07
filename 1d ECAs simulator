@@ -1,0 +1,121 @@
+#Imports needed for the code
+import pygame
+import itertools
+import random
+
+# initiate pygame
+pygame.init()
+
+# define the colors
+white = (255, 255, 255)
+black = (0, 0, 0)
+read = (255, 0, 200)
+c_color = black
+d_color = white
+
+#screen size
+height = 600
+width = 800
+
+#dimension and quantity of cells
+cell_size = 2
+number_of_cells = int(width/cell_size)
+number_of_gens = int(height/cell_size)
+
+#creates the standard sequence
+x = [True, False]
+sequence_building = ([p for p in itertools.product(x, repeat=3)])
+
+item_in_sequence = len(sequence_building)
+sequence = []
+for i in range(0, item_in_sequence):
+    sequence.append(list(sequence_building[i]))
+
+#Creates all possible combination of outcomes = all the sequence
+all_sequence_building = [p for p in itertools.product(x, repeat=8)]
+item_in_all_sequence = len(all_sequence_building)
+all_sequence = []
+for i in range(0, item_in_all_sequence):
+    all_sequence.append(list(all_sequence_building[i]))
+
+running = True
+screen = pygame.display.set_mode((width, height))
+pygame.display.set_caption("1 Dimensional Cellular Automaton")
+
+# main loop starts
+while running:
+
+    # exiting option
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            running = False
+
+    valid_value = False
+    while not valid_value:
+        input_rule = input("input a rule number to simulate it : ")
+        try:
+            input_rule = int(input_rule)
+            if 0 <= input_rule < item_in_all_sequence:
+                valid_value = True
+            else:
+                print(f"You must provide a value between 0 and {item_in_all_sequence - 1}")
+        except ValueError:
+            print(f"You must provide a value between 0 and {item_in_all_sequence - 1}")
+
+
+    # Checks the combination for rule number "input_rule" in "all_sequence"
+    current_rule = all_sequence[input_rule][:]
+    # Creates for gen / gen
+    current_gen = [False] * number_of_cells
+    middle_point = int(len(current_gen)/2)
+    current_gen.insert(middle_point, True)
+    current_gen = []
+    for k in range(number_of_cells + 1):
+        current_gen = current_gen + [bool(random.getrandbits(1))]
+    next_gen = current_gen[:]
+    # main loop and screen rendering
+    gen = 0
+
+
+    # main loop
+
+    while gen <= (number_of_gens):
+        # simulation loop, halts when all generations have been computed
+        for i in range(number_of_cells):
+            #goes through each cell in current_gen
+            
+            neighborhood = [current_gen[i - 1], current_gen[i], current_gen[i + 1]]
+            #determines the neighborhood
+
+            position = sequence.index(neighborhood)
+            #determines its index in the standard set of combiantion
+
+            if current_rule[position]:
+                #checks the output for that index
+
+                next_gen[i] = False
+                #sets the state of the offspring
+                pygame.draw.rect(screen, (d_color),
+                                 ((i * cell_size), (gen * cell_size), cell_size, cell_size))
+                #draws the cells on pygame (screen, color, X coordinate, Y coordinate, widht, height)
+            else:
+                next_gen[i] = True
+                pygame.draw.rect(screen, (c_color),
+                                 ((i * cell_size), (gen * cell_size), cell_size, cell_size))
+        gen = gen + 1
+        #ends generation and add to generation count
+
+        current_gen = next_gen[:]
+        #updates current generation to restart the loop
+
+        pygame.display.update()
+        #updates the display with what gets drawn
+
+    valid_value = False
+    #variable reset for new simulation
+
+    pygame.image.save(screen, "rule30.jpeg")
+    #line to eventually save screenshots
+
+pygame.quit
+#halts software
